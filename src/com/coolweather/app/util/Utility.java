@@ -20,7 +20,7 @@ import com.coolweather.app.model.County;
 import com.coolweather.app.model.Province;
 
 /**
- * 
+ * 处理各种服务器返回的数据
  * @author devil110
  *
  */
