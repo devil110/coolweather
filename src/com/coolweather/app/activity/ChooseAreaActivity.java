@@ -14,7 +14,10 @@ import com.coolweather.app.util.Utility;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -55,6 +58,14 @@ public class ChooseAreaActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		super.onCreate(savedInstanceState);
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		if(prefs.getBoolean("city_selected", false)){
+			Log.e("ChooseAreaActivity", "onCreate_if");
+			Intent intent = new Intent(this, WeatherActivity.class);
+			startActivity(intent);
+			finish();
+			return;
+		}
 		setContentView(R.layout.choose_area);
 		listView = (ListView) findViewById(R.id.list_view);
 		titleText = (TextView) findViewById(R.id.title_text);
@@ -72,6 +83,14 @@ public class ChooseAreaActivity extends Activity {
 				}else if(currentLevel == LEVEL_CITY){
 					selectedCity = cityList.get(position);
 					queryCounties();
+				}else if(currentLevel == LEVEL_COUNTY){
+					Log.e("ChooseAreaActivity", "onCreate_list_level_county");
+					String countyCode = countyList.get(position).getCode();
+					Log.e("ChooseAreaActivity", countyCode+","+position+","+countyList.size());
+					Intent intent = new Intent(ChooseAreaActivity.this, WeatherActivity.class);
+					intent.putExtra("county_code", countyCode);
+					startActivity(intent);
+					finish();
 				}
 				
 			}
@@ -132,13 +151,6 @@ public class ChooseAreaActivity extends Activity {
 
 	private void queryFromSever(final String code, final String type) {
 		String address;
-		String str;
-		if(TextUtils.isEmpty(code)){
-			str = "";
-		}else{
-			str = code;
-		}
-		Log.d("tag", str+",a");
 		if(!TextUtils.isEmpty(code)){
 			address = "http://www.weather.com.cn/data/list3/city"+code+".xml";
 		}else{
@@ -181,6 +193,7 @@ public class ChooseAreaActivity extends Activity {
 			
 			@Override
 			public void onError(Exception e) {
+				e.printStackTrace();
 				runOnUiThread(new Runnable() {
 					public void run() {
 						closeProgressDialog();
